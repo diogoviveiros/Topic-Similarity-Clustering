@@ -7,8 +7,28 @@
     body {
       font-family: Arial, sans-serif;
       padding: 2rem;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
+    }
+    header {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    header button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background-color: #2196F3;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    header button:hover {
+      background-color: #1976D2;
+    }
+    header button.active {
+      background-color: #0D47A1;
     }
     h1 {
       text-align: center;
@@ -27,7 +47,7 @@
     input[type="file"] {
       margin-top: 1rem;
     }
-    button {
+    button[type="submit"] {
       margin-top: 2rem;
       padding: 0.75rem 1.5rem;
       background-color: #4CAF50;
@@ -36,17 +56,26 @@
       cursor: pointer;
       font-size: 1rem;
     }
-    button:hover {
+    button[type="submit"]:hover {
       background-color: #45a049;
+    }
+    #loading {
+      margin-top: 1rem;
+      font-style: italic;
+      color: #555;
     }
   </style>
 </head>
 <body>
 
-  <h1>Clustering Project</h1>
+<header>
+  <button id="formButton" onclick="showSection('formSection')">Clustering</button>
+  <button id="helpButton" onclick="showSection('helpSection')">Help</button>
+</header>
 
+<section id="formSection">
+  <h1>Topic Clustering</h1>
   <form method="post" enctype="multipart/form-data">
-
     <label for="clusteringType">Type of clustering</label>
     <select id="clusteringType" name="clusteringType" onchange="toggleInputs()">
       <option value="" disabled selected>Select an option</option>
@@ -60,24 +89,64 @@
     </div>
 
     <div id="sensitivityDiv" style="display: none;">
-      <label for="sensitivity">Sensitivity</label>
+      <label for="sensitivity">Threshold (between 0 and 1. Higher = less clusters)</label>
       <input type="number" id="sensitivity" name="sensitivity" min="0" max="1" step="0.01">
     </div>
-	<div>
-		<label for="file">Choose CSV File</label>
-		<input type="file" id="file" name="file" accept=".csv">
-	</div>
-    <button type="submit">Cluster</button>
 
+    <div>
+      <label for="file">Choose CSV File</label>
+      <input type="file" id="file" name="file" accept=".csv">
+    </div>
+
+    <button type="submit" onclick="showSpinner()">Cluster</button>
+
+    <div id="loading" style="display: none;">Running Model and Clustering. Please wait, this may take a few minutes...</div>
   </form>
+</section>
 
-  <script>
-    function toggleInputs() {
-      const type = document.getElementById("clusteringType").value;
-      document.getElementById("chooseClustersDiv").style.display = (type === "choose") ? "block" : "none";
-      document.getElementById("sensitivityDiv").style.display = (type === "auto") ? "block" : "none";
+<section id="helpSection" style="display: none;">
+  <h1>Help</h1>
+  <p>Welcome to the Clustering App! Here is how it works:</p>
+  <ul>
+    <li><strong>Upload a spreadsheet:</strong> Please upload a spreadsheet in a CSV format. Ensure that there are two colums: "Title" and "Description" . These are case-sensitive, so please be mindful of that as well.</li>
+    <li><strong>Choose Clustering Type:</strong>: You can manually set the number of clusters or allow the app to determine it automatically based on a sensitivity setting. The sensitivity setting should be a number between 0 and 1 (I recommend starting with 0.35 and adjusting based on outcomes). The closer the number is to 1, the less rows will be put per cluster (and the more clusters you will have)</li>
+    <li><strong>Upload Data:</strong>: Upload your CSV file containing the data you want to cluster.</li>
+    <li><strong>Submit</strong>: Click the "Cluster" button to run the model. Please be patient, this may take a few minutes depending on the file size.</li>
+  </ul>
+</section>
+
+<script>
+  function showSpinner() {
+    document.getElementById('loading').style.display = 'block';
+  }
+
+  function toggleInputs() {
+    const type = document.getElementById("clusteringType").value;
+    document.getElementById("chooseClustersDiv").style.display = (type === "choose") ? "block" : "none";
+    document.getElementById("sensitivityDiv").style.display = (type === "auto") ? "block" : "none";
+  }
+
+  function showSection(sectionId) {
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('helpSection').style.display = 'none';
+
+    document.getElementById(sectionId).style.display = 'block';
+
+    document.getElementById('formButton').classList.remove('active');
+    document.getElementById('helpButton').classList.remove('active');
+
+    if (sectionId === 'formSection') {
+      document.getElementById('formButton').classList.add('active');
+    } else {
+      document.getElementById('helpButton').classList.add('active');
     }
-  </script>
+  }
+
+  // Initialize with form active
+  window.onload = function() {
+    showSection('formSection');
+  };
+</script>
 
 </body>
 </html>
